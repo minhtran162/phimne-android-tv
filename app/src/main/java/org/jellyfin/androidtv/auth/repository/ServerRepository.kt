@@ -32,6 +32,8 @@ import timber.log.Timber
 import java.time.Instant
 import java.util.UUID
 import org.jellyfin.sdk.model.api.BrandingOptions as BrandingOptionsDto
+import org.jellyfin.androidtv.BuildConfig
+import android.util.Log
 
 /**
  * Repository to maintain servers.
@@ -56,6 +58,18 @@ interface ServerRepository {
 		val recommendedServerVersion = Jellyfin.apiVersion.copy(build = null)
 
 		val upcomingMinimumServerVersion = ServerVersion(10, 11, 0)
+
+		val staticServer: Server
+			get() = Server(
+				id = (BuildConfig.STATIC_SERVER_ID).toUUID(),
+				name = "Phim Ne",
+				address = BuildConfig.STATIC_SERVER,
+				version = "10.11.5",
+				loginDisclaimer = null,
+				splashscreenEnabled = false,
+				setupCompleted = true,
+				dateLastAccessed = Instant.EPOCH,
+			)
 	}
 }
 
@@ -75,10 +89,40 @@ class ServerRepositoryImpl(
 
 	// Loading data
 	override suspend fun loadStoredServers() {
-		authenticationStore.getServers()
+		// Validate static server configuration
+		if (BuildConfig.STATIC_SERVER.isBlank() || BuildConfig.STATIC_SERVER_ID.isBlank()) {
+			Timber.e("Static server configuration is missing or invalid!")
+			// Load servers without adding static server
+			val allServers = authenticationStore.getServers()
+				.map { (id, entry) -> entry.asServer(id) }
+				.sortedWith(compareByDescending<Server> { it.dateLastAccessed }.thenBy { it.name })
+			_storedServers.emit(allServers)
+			return
+		}
+		// Get the current servers from the authentication store
+		val serversFromStore = authenticationStore.getServers()
+
+		// Check if the static server is missing and add it if necessary
+		if (!serversFromStore.containsKey((BuildConfig.STATIC_SERVER_ID).toUUID())) {
+			val staticAuthServer = AuthenticationStoreServer(
+				name = ServerRepository.staticServer.name,
+				address = ServerRepository.staticServer.address,
+				version = ServerRepository.staticServer.version,
+				loginDisclaimer = ServerRepository.staticServer.loginDisclaimer,
+				splashscreenEnabled = ServerRepository.staticServer.splashscreenEnabled,
+				setupCompleted = ServerRepository.staticServer.setupCompleted,
+				lastUsed = ServerRepository.staticServer.dateLastAccessed.toEpochMilli()
+			)
+			authenticationStore.putServer((BuildConfig.STATIC_SERVER_ID).toUUID(), staticAuthServer)
+		}
+
+		// Load all servers from the store, including the static server if added
+		val allServers = authenticationStore.getServers()
 			.map { (id, entry) -> entry.asServer(id) }
 			.sortedWith(compareByDescending<Server> { it.dateLastAccessed }.thenBy { it.name })
-			.let { _storedServers.emit(it) }
+
+		// Update the storedServers StateFlow
+		_storedServers.emit(allServers)
 	}
 
 	override suspend fun loadDiscoveryServers() {

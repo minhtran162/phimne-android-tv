@@ -133,13 +133,6 @@ class ServerFragment : Fragment() {
 	private fun onServerChange(server: Server) {
 		binding.loginDisclaimer.text = server.loginDisclaimer?.let { markdownRenderer.toMarkdownSpanned(it) }
 
-		binding.serverButton.apply {
-			state = ServerButtonView.State.EDIT
-			name = server.name
-			address = server.address
-			version = server.version
-		}
-
 		binding.addUserButton.setOnClickListener {
 			navigateFragment<UserLoginFragment>(
 				args = bundleOf(
@@ -147,10 +140,6 @@ class ServerFragment : Fragment() {
 					UserLoginFragment.ARG_USERNAME to null
 				)
 			)
-		}
-
-		binding.serverButton.setOnClickListener {
-			navigateFragment<SelectServerFragment>(keepToolbar = true)
 		}
 
 		if (!server.versionSupported) {

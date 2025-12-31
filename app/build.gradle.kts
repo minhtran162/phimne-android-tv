@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
 	id("com.android.application")
 	kotlin("android")
@@ -5,6 +8,20 @@ plugins {
 	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.aboutlibraries)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val staticServer : String = localProperties.getProperty("STATIC_SERVER")
+    ?: project.findProperty("STATIC_SERVER") as? String
+    ?: ""
+
+val staticServerId : String = localProperties.getProperty("STATIC_SERVER_ID")
+    ?: project.findProperty("STATIC_SERVER_ID") as? String
+    ?: ""
 
 android {
 	namespace = "org.jellyfin.androidtv"
@@ -18,6 +35,17 @@ android {
 		applicationId = namespace
 		versionName = project.getVersionName()
 		versionCode = getVersionCode(versionName!!)
+
+		buildConfigField(
+			"String",
+			"STATIC_SERVER",
+			"\"$staticServer\"",
+		)
+		buildConfigField(
+			"String",
+			"STATIC_SERVER_ID",
+			"\"$staticServerId\""
+		)
 	}
 
 	buildFeatures {

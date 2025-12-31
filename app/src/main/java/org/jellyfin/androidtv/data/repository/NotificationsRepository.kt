@@ -32,7 +32,6 @@ class NotificationsRepositoryImpl(
 	}
 
 	override fun addDefaultNotifications() {
-		addUiModeNotification()
 		addBetaNotification()
 	}
 

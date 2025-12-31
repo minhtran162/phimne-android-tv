@@ -77,24 +77,6 @@ class AuthPreferencesScreen : OptionsFragment() {
 			}
 		}
 
-		val servers = serverRepository.storedServers.value
-		if (servers.isNotEmpty()) {
-			category {
-				setTitle(R.string.lbl_manage_servers)
-
-				for (server in servers) {
-					link {
-						title = server.name
-						icon = R.drawable.ic_house
-						content = server.address
-						withFragment<EditServerScreen>(bundleOf(
-							EditServerScreen.ARG_SERVER_UUID to server.id
-						))
-					}
-				}
-			}
-		}
-
 		// Disallow changing the "always authenticate" option from the login screen
 		// because that would allow a kid to disable the function to access a parent's account
 		if (sessionRepository.currentSession.value != null) {
