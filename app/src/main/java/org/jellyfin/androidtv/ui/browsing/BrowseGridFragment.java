@@ -272,6 +272,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
 
 
     public void setItem(BaseRowItem item) {
+        if (!isAdded()) return;
         if (item != null) {
             binding.title.setText(item.getFullName(requireContext()));
             InfoLayoutHelper.addInfoRow(requireContext(), item.getBaseItem(), binding.infoRow, true);
@@ -300,10 +301,15 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
             if (sortOption.value.equals(value)) return sortOption;
         }
 
-        return new SortOption(getString(R.string.lbl_bracket_unknown), ItemSortBy.SORT_NAME, SortOrder.ASCENDING);
+        if (isAdded()) {
+            return new SortOption(getString(R.string.lbl_bracket_unknown), ItemSortBy.SORT_NAME, SortOrder.ASCENDING);
+        } else {
+            return new SortOption("[Unknown]", ItemSortBy.SORT_NAME, SortOrder.ASCENDING);
+        }
     }
 
     public void setStatusText(String folderName) {
+        if (!isAdded() || binding == null) return;
         String text = getString(R.string.lbl_showing) + " ";
         FilterOptions filters = mAdapter.getFilters();
         if (filters == null || (!filters.isFavoriteOnly() && !filters.isUnwatchedOnly())) {
@@ -341,7 +347,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
             };
 
     public void updateCounter(int position) {
-        if (mAdapter != null) {
+        if (mAdapter != null && binding != null) {
             binding.counter.setText(MessageFormat.format("{0} | {1}", position, mAdapter.getTotalItems()));
         }
     }
@@ -877,7 +883,7 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     }
 
     private void refreshCurrentItem() {
-        if (mCurrentItem == null) return;
+        if (!isAdded() || mCurrentItem == null) return;
         Timber.i("Refresh item \"%s\"", mCurrentItem.getFullName(requireContext()));
         ItemRowAdapterHelperKt.refreshItem(mAdapter, api.getValue(), this, mCurrentItem, () -> {
             //Now - if filtered make sure we still pass
@@ -896,9 +902,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
         public void onItemClicked(final Presenter.ViewHolder itemViewHolder, Object item,
-                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
-
-            if (!(item instanceof BaseRowItem)) return;
+         RowPresenter.ViewHolder rowViewHolder, Row row) {
+            if (!isAdded() || !(item instanceof BaseRowItem)) return;
             itemLauncher.getValue().launch((BaseRowItem) item, mAdapter, requireContext());
         }
     }
@@ -916,7 +921,8 @@ public class BrowseGridFragment extends Fragment implements View.OnKeyListener {
     private final class ItemViewSelectedListener implements OnItemViewSelectedListener {
         @Override
         public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item,
-                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
+          RowPresenter.ViewHolder rowViewHolder, Row row) {
+            if (!isAdded()) return;
             mHandler.removeCallbacks(mDelayedSetItem);
             if (!(item instanceof BaseRowItem)) {
                 mCurrentItem = null;

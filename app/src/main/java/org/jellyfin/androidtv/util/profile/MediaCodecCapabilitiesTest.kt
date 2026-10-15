@@ -143,9 +143,13 @@ class MediaCodecCapabilitiesTest(
 	private fun getAVCLevel(profile: Int): Int {
 		val level = getDecoderLevel(MediaFormat.MIMETYPE_VIDEO_AVC, profile)
 
-		return avcLevels.asReversed().find { item ->
+		val reportedLevel = avcLevels.asReversed().find { item ->
 			level >= item.first
 		}?.second ?: 0
+
+		// Return at least level 4.1 (41) or 5.1 (51) as most modern devices support it
+		// and it prevents unnecessary transcoding for files marked with high levels (like HandBrake encodes)
+		return maxOf(reportedLevel, 51)
 	}
 
 	fun supportsHevc(): Boolean = hasCodecForMime(MediaFormat.MIMETYPE_VIDEO_HEVC)
@@ -195,9 +199,12 @@ class MediaCodecCapabilitiesTest(
 	private fun getHevcLevel(profile: Int): Int {
 		val level = getDecoderLevel(MediaFormat.MIMETYPE_VIDEO_HEVC, profile)
 
-		return hevcLevels.asReversed().find { item ->
+		val reportedLevel = hevcLevels.asReversed().find { item ->
 			level >= item.first
 		}?.second ?: 0
+
+		// Return at least level 4.1 (123) for HEVC
+		return maxOf(reportedLevel, 123)
 	}
 
 	fun supportsVc1(): Boolean = hasCodecForMime(MimeTypes.VIDEO_VC1)

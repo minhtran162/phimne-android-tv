@@ -1,11 +1,16 @@
 package org.jellyfin.androidtv.ui.playback
 
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jellyfin.androidtv.ui.itemhandling.AudioQueueBaseRowItem
 import org.jellyfin.androidtv.ui.presentation.CardPresenter
 import org.jellyfin.androidtv.ui.presentation.MutableObjectAdapter
@@ -31,22 +36,29 @@ class AudioQueueBaseRowAdapter(
 	}
 
 	private fun updateAdapter() {
-		val currentItem = playbackManager.queue.entry.value?.let(::AudioQueueBaseRowItem)?.apply {
-			playing = true
+		// Process the update off the main thread to avoid blocking UI
+		ProcessLifecycleOwner.get().lifecycleScope.launch {
+			withContext(Dispatchers.Default) {
+				val currentItem = playbackManager.queue.entry.value?.let(::AudioQueueBaseRowItem)?.apply {
+					playing = true
+				}
+
+				// It's safe to run this blocking as all items are prefetched via the [BaseItemQueueSupplier]
+				val upcomingItems = runBlocking { playbackManager.queue.peekNext(100) }
+					.mapIndexedNotNull { index, item -> item.takeIf { it.baseItem != null }?.let(::AudioQueueBaseRowItem) }
+
+				val items = listOfNotNull(currentItem) + upcomingItems
+
+				// Update item row on main thread
+				withContext(Dispatchers.Main) {
+					replaceAll(
+						items,
+						areItemsTheSame = { old, new -> old.baseItem?.id == new.baseItem?.id },
+						// The equals functions for BaseRowItem only compare by id
+						areContentsTheSame = { _, _ -> false },
+					)
+				}
+			}
 		}
-
-		// It's safe to run this blocking as all items are prefetched via the [BaseItemQueueSupplier]
-		val upcomingItems = runBlocking { playbackManager.queue.peekNext(100) }
-			.mapIndexedNotNull { index, item -> item.takeIf { it.baseItem != null }?.let(::AudioQueueBaseRowItem) }
-
-		val items = listOfNotNull(currentItem) + upcomingItems
-
-		// Update item row
-		replaceAll(
-			items,
-			areItemsTheSame = { old, new -> old.baseItem?.id == new.baseItem?.id },
-			// The equals functions for BaseRowItem only compare by id
-			areContentsTheSame = { _, _ -> false },
-		)
 	}
 }

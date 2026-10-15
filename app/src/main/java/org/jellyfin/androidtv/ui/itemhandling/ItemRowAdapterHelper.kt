@@ -49,26 +49,53 @@ fun <T : Any> ItemRowAdapter.setItems(
 ) {
 	Timber.i("Creating items from $itemsLoaded existing and ${items.size} new, adapter size is ${size()}")
 
-	val allItems = buildList {
-		// Add current items before loaded items
-		repeat(itemsLoaded) {
-			add(this@setItems.get(it))
-		}
+	// Process the items creation off the main thread to avoid blocking UI
+	ProcessLifecycleOwner.get().lifecycleScope.launch {
+		withContext(Dispatchers.Default) {
+			// Pre-calculate the expected size to reduce ArrayList resizes
+			var newSize = itemsLoaded // existing items at start
+			newSize += items.count() // new items to be added
+			// Calculate remaining items after the new items
+			val mappedSize = items.count()
+			newSize += min(totalItems, size()) - itemsLoaded - mappedSize
 
-		// Add loaded items
-		val mappedItems = items.mapIndexedNotNull { index, item ->
-			transform(item, itemsLoaded + index)
-		}
-		mappedItems.forEach { add(it) }
+			// Create the list with initial capacity to avoid reallocation
+			val allItems = ArrayList<BaseRowItem>(kotlin.math.max(newSize, 0))
 
-		// Add current items after loaded items
-		repeat(min(totalItems, size()) - itemsLoaded - mappedItems.size) {
-			add(this@setItems.get(it + itemsLoaded + mappedItems.size))
+			// Add current items before loaded items
+			for (i in 0 until itemsLoaded) {
+				val item = this@setItems.get(i)
+				if (item is BaseRowItem) {
+					allItems.add(item)
+				}
+			}
+
+			// Add loaded items - apply transform function in batches to avoid memory pressure on low-end devices
+			if (items.isNotEmpty()) {
+				items.forEachIndexed { index, item ->
+					val transformedItem = transform(item, itemsLoaded + index)
+					if (transformedItem != null) {
+						allItems.add(transformedItem)
+					}
+				}
+			}
+
+			// Add current items after loaded items
+			val itemsAfter = min(totalItems, size()) - itemsLoaded - mappedSize
+			for (i in 0 until itemsAfter) {
+				val item = this@setItems.get(i + itemsLoaded + mappedSize)
+				if (item is BaseRowItem) {
+					allItems.add(item)
+				}
+			}
+
+			// Update the adapter on the main thread using immediate dispatcher for responsiveness
+			withContext(Dispatchers.Main.immediate) {
+				replaceAll(allItems)
+				itemsLoaded = allItems.size
+			}
 		}
 	}
-
-	replaceAll(allItems)
-	itemsLoaded = allItems.size
 }
 
 fun ItemRowAdapter.retrieveResumeItems(api: ApiClient, query: GetResumeItemsRequest) {

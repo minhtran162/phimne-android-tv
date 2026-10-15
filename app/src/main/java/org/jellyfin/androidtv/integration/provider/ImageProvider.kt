@@ -35,14 +35,23 @@ class ImageProvider : ContentProvider() {
 		val (read, write) = ParcelFileDescriptor.createPipe()
 		val outputStream = ParcelFileDescriptor.AutoCloseOutputStream(write)
 
-		imageLoader.enqueue(ImageRequest.Builder(context!!).apply {
-			data(src)
-			error(R.drawable.placeholder_icon)
-			target(
-				onSuccess = { image -> writeDrawable(image.asDrawable(context!!.resources), outputStream) },
-				onError = { image -> writeDrawable(requireNotNull(image?.asDrawable(context!!.resources)), outputStream) }
-			)
-		}.build())
+		try {
+			imageLoader.enqueue(ImageRequest.Builder(context!!).apply {
+				data(src)
+				error(R.drawable.placeholder_icon)
+				target(
+					onSuccess = { image -> writeDrawable(image.asDrawable(context!!.resources), outputStream) },
+					onError = { image -> writeDrawable(requireNotNull(image?.asDrawable(context!!.resources)), outputStream) }
+				)
+				listener(
+					onCancel = { outputStream.close() }
+				)
+			}.build())
+		} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+			outputStream.close()
+			read.close()
+			throw e
+		}
 
 		return read
 	}

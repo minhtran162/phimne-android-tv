@@ -61,37 +61,42 @@ object TelemetryService {
 		private val token: String?,
 		private val includeLogs: Boolean,
 	) : ReportSender {
-		override fun send(context: Context, errorContent: CrashReportData) = try {
-			if (url.isNullOrBlank()) throw ReportSenderException("No telemetry crash report URL available.")
-			if (token.isNullOrBlank()) throw ReportSenderException("No telemetry crash report token available.")
+		override fun send(context: Context, errorContent: CrashReportData) {
+			try {
+				if (url.isNullOrBlank()) throw ReportSenderException("No telemetry crash report URL available.")
+				if (token.isNullOrBlank()) throw ReportSenderException("No telemetry crash report token available.")
 
-			// Create connection
-			val connection = URL(url).openConnection() as HttpURLConnection
-			// Add authorization
-			val clientName = buildString {
-				append("Phim Ne Android TV")
-				if (BuildConfig.DEBUG) append(" (debug)")
+				// Create connection
+				val connection = URL(url).openConnection() as HttpURLConnection
+				try {
+					// Add authorization
+					val clientName = buildString {
+						append("Phim Ne Android TV")
+						if (BuildConfig.DEBUG) append(" (debug)")
+					}
+					val authorization = AuthorizationHeaderBuilder.buildHeader(
+						clientName = clientName,
+						clientVersion = BuildConfig.VERSION_NAME,
+						deviceId = "",
+						deviceName = "",
+						accessToken = token,
+					)
+					connection.setRequestProperty("Authorization", authorization)
+					// Write POST body
+					connection.requestMethod = "POST"
+					connection.doOutput = true
+					connection.outputStream.use { outputStream ->
+						outputStream.write(errorContent.toReport().toByteArray())
+						outputStream.flush()
+					}
+					// Read response to complete the request
+					connection.inputStream.use { it.readBytes() }
+				} finally {
+					connection.disconnect()
+				}
+			} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+				throw ReportSenderException("Unable to send crash report to server", e)
 			}
-			val authorization = AuthorizationHeaderBuilder.buildHeader(
-				clientName = clientName,
-				clientVersion = BuildConfig.VERSION_NAME,
-				deviceId = "",
-				deviceName = "",
-				accessToken = token,
-			)
-			connection.setRequestProperty("Authorization", authorization)
-			// Write POST body
-			connection.requestMethod = "POST"
-			connection.doOutput = true
-			connection.outputStream.apply {
-				write(errorContent.toReport().toByteArray())
-				flush()
-				close()
-			}
-			// Close
-			connection.inputStream.close()
-		} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-			throw ReportSenderException("Unable to send crash report to server", e)
 		}
 
 		private fun CrashReportData.toReport(): String = buildMarkdown {

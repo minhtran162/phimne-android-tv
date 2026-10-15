@@ -7,8 +7,13 @@ import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jellyfin.androidtv.data.model.AppNotification
 import org.jellyfin.androidtv.data.repository.NotificationsRepository
 import org.jellyfin.androidtv.ui.notification.AppNotificationPresenter
@@ -26,8 +31,14 @@ class NotificationsHomeFragmentRow(
 
 	init {
 		notificationsRepository.notifications.onEach { notifications ->
-			announcementAdapter.replaceAll(notifications)
-			update(notifications.isEmpty())
+			// Move the replacement off the main thread to avoid blocking UI
+			ProcessLifecycleOwner.get().lifecycleScope.launch {
+				withContext(Dispatchers.Default) {
+					announcementAdapter.replaceAll(notifications)
+				}
+				// Then update UI on main thread
+				update(notifications.isEmpty())
+			}
 		}.launchIn(lifecycleScope)
 	}
 
