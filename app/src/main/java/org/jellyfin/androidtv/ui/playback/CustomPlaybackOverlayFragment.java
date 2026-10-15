@@ -466,7 +466,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
     public void refreshFavorite(UUID channelId) {
         for (int i = 0; i < tvGuideBinding.channels.getChildCount(); i++) {
             GuideChannelHeader gch = (GuideChannelHeader) tvGuideBinding.channels.getChildAt(i);
-            if (gch.getChannel().getId().equals(channelId.toString()))
+            if (gch.getChannel().getId().equals(channelId))
                 gch.refreshFavorite();
         }
     }
@@ -866,6 +866,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
             for (int i = start; i <= end; i++) {
                 if (isCancelled()) return null;
                 final BaseItemDto channel = TvManager.getChannel(i);
+                if (channel == null) continue;
                 List<BaseItemDto> programs = TvManager.getProgramsForChannel(channel.getId());
                 final LinearLayout row = getProgramRow(programs, channel.getId());
                 if (first) {
@@ -874,7 +875,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
                 }
 
                 // put focus on the last tuned channel
-                if (channel.getId().equals(mFirstFocusChannelId.toString())) {
+                if (channel.getId().equals(mFirstFocusChannelId)) {
                     firstRow = row;
                     mFirstFocusChannelId = null; // only do this first time in not while paging around
                 }
@@ -1282,7 +1283,7 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
 
         if (chapters != null && !chapters.isEmpty()) {
             // create chapter row for later use
-            ItemRowAdapter chapterAdapter = new ItemRowAdapter(requireContext(), BaseItemExtensionsKt.buildChapterItems(item, api.getValue()), new CardPresenter(true, 110), new MutableObjectAdapter<Row>());
+            ItemRowAdapter chapterAdapter = new ItemRowAdapter(requireContext(), BaseItemExtensionsKt.buildChapterItems(item), new CardPresenter(true, 110), new MutableObjectAdapter<Row>());
             chapterAdapter.Retrieve();
             if (mChapterRow != null) mPopupRowAdapter.remove(mChapterRow);
             mChapterRow = new ListRow(new HeaderItem(requireContext().getString(R.string.chapters)), chapterAdapter);

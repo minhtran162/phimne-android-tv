@@ -25,9 +25,11 @@ import org.jellyfin.androidtv.ui.base.list.ListButton
 import org.jellyfin.androidtv.ui.base.list.ListControl
 import org.jellyfin.androidtv.ui.base.list.ListSection
 import org.jellyfin.androidtv.ui.navigation.LocalRouter
+import org.jellyfin.androidtv.ui.navigation.focus.focusKey
 import org.jellyfin.androidtv.ui.settings.Routes
 import org.jellyfin.androidtv.ui.settings.compat.rememberPreference
 import org.jellyfin.androidtv.ui.settings.composable.SettingsColumn
+import org.jellyfin.design.Tokens
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
@@ -51,7 +53,8 @@ fun SettingsPlaybackNextUpScreen() {
 				headingContent = { Text(stringResource(R.string.pref_media_queueing)) },
 				trailingContent = { Checkbox(checked = mediaQueuingEnabled) },
 				captionContent = { Text(stringResource(R.string.pref_media_queueing_description)) },
-				onClick = { mediaQueuingEnabled = !mediaQueuingEnabled }
+				onClick = { mediaQueuingEnabled = !mediaQueuingEnabled },
+				modifier = Modifier.focusKey("media_queuing_enabled")
 			)
 		}
 
@@ -61,7 +64,8 @@ fun SettingsPlaybackNextUpScreen() {
 			ListButton(
 				headingContent = { Text(stringResource(R.string.pref_next_up_behavior_title)) },
 				captionContent = { Text(stringResource(nextUpBehavior.nameRes)) },
-				onClick = { router.push(Routes.PLAYBACK_NEXT_UP_BEHAVIOR) }
+				onClick = { router.push(Routes.PLAYBACK_NEXT_UP_BEHAVIOR) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_NEXT_UP_BEHAVIOR)
 			)
 		}
 
@@ -73,6 +77,7 @@ fun SettingsPlaybackNextUpScreen() {
 				headingContent = { Text(stringResource(R.string.pref_next_up_timeout_title)) },
 				captionContent = { Text(stringResource(R.string.pref_next_up_timeout_summary)) },
 				interactionSource = interactionSource,
+				modifier = Modifier.focusKey("next_up_timeout")
 			) {
 				Row(
 					verticalAlignment = Alignment.CenterVertically,
@@ -85,12 +90,13 @@ fun SettingsPlaybackNextUpScreen() {
 						// 0 - 30 seconds with 1 second increment
 						min = 0f,
 						max = 30_000f,
+						markers = listOf(UserPreferences.nextUpTimeout.defaultValue.toFloat()),
 						stepForward = 1_000f,
 						value = nextUpTimeout.toFloat(),
 						onValueChange = { nextUpTimeout = it.roundToInt() }
 					)
 
-					Spacer(Modifier.width(8.dp))
+					Spacer(Modifier.width(Tokens.Space.spaceSm))
 
 					Box(
 						modifier = Modifier.sizeIn(minWidth = 32.dp),

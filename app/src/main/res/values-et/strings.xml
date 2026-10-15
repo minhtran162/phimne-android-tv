@@ -256,7 +256,6 @@
     <string name="lbl_showing">Kuvamine</string>
     <string name="lbl_stretch">Venita</string>
     <string name="lbl_open">Ava</string>
-    <string name="pref_show_backdrop_description">Muuda taustapilt valitud üksusteks</string>
     <string name="lbl_show_premieres">Kuva hooaja pilootosad</string>
     <string name="desc_premieres">Kuva kõigi vaadatavate sarjade jaoks uute pilootosade rida</string>
     <string name="lbl_in_x_days">%d päeva jooksul</string>
@@ -340,7 +339,6 @@
         <item quantity="other">%1$s rada</item>
     </plurals>
     <string name="login_quickconnect_step_3">3. Sisestage järgmine kood:</string>
-    <string name="pref_default_rating">Vaikimisi hinnang</string>
     <string name="color_black">Must</string>
     <string name="home_section_latest_media">Hiljuti lisatud meedia</string>
     <string name="home_section_active_recordings">Aktiivsed salvestused</string>
@@ -372,7 +370,6 @@
     <string name="seek_error">Ei õnnestunud otsida</string>
     <string name="lbl_sign_in">Palun logi sisse</string>
     <string name="server_connecting">Ühenduse loomine %1$s</string>
-    <string name="lbl_tomatoes">Tomatid</string>
     <string name="login_invalid_credentials">Vale kasutajanimi ja/või parool</string>
     <string name="lbl_sign_out_content">Järgmisel kasutamisel on vaja sisselogimist</string>
     <string name="lbl_remove_user_content">Eemalda konto</string>
@@ -434,7 +431,6 @@
     <string name="item_delete_confirm_message">Kas olete kindel, et soovite selle üksuse serverist kustutada\? Seda toimingut ei saa tagasi võtta.</string>
     <string name="turn_off">Lülitage see valik välja</string>
     <string name="lbl_playback_control_ends">Lõppeb %1$s</string>
-    <string name="lbl_stars">Hinnang</string>
     <string name="lbl_always">Alati</string>
     <string name="login_authenticating">Autentimine…</string>
     <string name="lbl_use_series_thumbnails">Eelista sarja pisipilte</string>
@@ -589,7 +585,6 @@
     <string name="preference_enable_trickplay">Luba trickplay kasutamine</string>
     <string name="pref_mediasegment_actions">Meediasegmendi toimingud</string>
     <string name="segment_type_unknown">Tundmatud segmendid</string>
-    <string name="preference_enable_libass">Luba Advanced SubStation Alpha (ASS) subtiitrite renderdamine kliendil</string>
     <string name="settings">Seaded</string>
     <string name="settings_description">Muuda rakendust oma maitse järgi</string>
     <string name="copied_to_clipboard">Kopeeriti lõikelauale</string>
@@ -618,4 +613,6 @@
     <string name="pref_prerolls_enabled_description">Esita enne filmi oma sissejuhatus</string>
     <string name="pref_playback_next_up">Järgmisena</string>
     <string name="pref_playback_prerolls">Eelrullid</string>
+    <string name="font_weight_900">Must</string>
+    <string name="filters">Filtrid</string>
 </resources>

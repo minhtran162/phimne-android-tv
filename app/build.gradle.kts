@@ -1,9 +1,8 @@
 plugins {
-	id("com.android.application")
-	kotlin("android")
-	alias(libs.plugins.kotlin.serialization)
-	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.aboutlibraries)
+	alias(libs.plugins.android.application)
+	alias(libs.plugins.kotlin.compose)
+	alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -24,14 +23,38 @@ android {
 		buildConfig = true
 		viewBinding = true
 		compose = true
+		resValues = true
 	}
 
 	compileOptions {
 		isCoreLibraryDesugaringEnabled = true
 	}
 
+	signingConfigs {
+		val keystoreFile = getProperty("keystore.file")
+		val keystorePassword = getProperty("keystore.password")
+		val signingKeyAlias = getProperty("signing.key.alias")
+		val signingKeyPassword = getProperty("signing.key.password")
+
+		if (keystoreFile != null && keystorePassword != null && signingKeyAlias != null && signingKeyPassword != null) {
+			create("release") {
+				storeFile = file(keystoreFile)
+				storePassword = keystorePassword
+				keyAlias = signingKeyAlias
+				keyPassword = signingKeyPassword
+			}
+		}
+	}
+
+	dependenciesInfo {
+		includeInBundle = false
+		includeInApk = false
+	}
+
 	buildTypes {
 		release {
+			isMinifyEnabled = true
+			isShrinkResources = true
 			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
 			// Set package names used in various XML files
@@ -43,6 +66,8 @@ android {
 			resValue("string", "app_name", "@string/app_name_release")
 
 			buildConfigField("boolean", "DEVELOPMENT", "false")
+
+			signingConfig = signingConfigs.findByName("release")
 		}
 
 		debug {
@@ -64,7 +89,6 @@ android {
 	lint {
 		lintConfig = file("$rootDir/android-lint.xml")
 		abortOnError = false
-		sarifReport = true
 		checkDependencies = true
 	}
 
@@ -138,6 +162,7 @@ dependencies {
 	implementation(libs.androidx.media3.exoplayer.hls)
 	implementation(libs.androidx.media3.ui)
 	implementation(libs.jellyfin.androidx.media3.ffmpeg.decoder)
+	implementation(libs.libass.media3)
 
 	// Markdown
 	implementation(libs.bundles.markwon)

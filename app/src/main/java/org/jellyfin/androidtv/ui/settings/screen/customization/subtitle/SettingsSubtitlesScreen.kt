@@ -26,10 +26,12 @@ import org.jellyfin.androidtv.ui.base.list.ListButton
 import org.jellyfin.androidtv.ui.base.list.ListControl
 import org.jellyfin.androidtv.ui.base.list.ListSection
 import org.jellyfin.androidtv.ui.navigation.LocalRouter
+import org.jellyfin.androidtv.ui.navigation.focus.focusKey
 import org.jellyfin.androidtv.ui.settings.Routes
 import org.jellyfin.androidtv.ui.settings.compat.rememberPreference
 import org.jellyfin.androidtv.ui.settings.composable.SettingsColumn
 import org.jellyfin.androidtv.ui.settings.screen.customization.subtitle.composable.SubtitleStylePreview
+import org.jellyfin.design.Tokens
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
@@ -70,6 +72,7 @@ fun SettingsSubtitlesScreen() {
 			ListControl(
 				headingContent = { Text(stringResource(R.string.pref_subtitles_size)) },
 				interactionSource = interactionSource,
+				modifier = Modifier.focusKey("subtitles_size")
 			) {
 				Row(
 					verticalAlignment = Alignment.CenterVertically,
@@ -80,13 +83,14 @@ fun SettingsSubtitlesScreen() {
 							.weight(1f),
 						interactionSource = interactionSource,
 						min = 8f,
-						max = 32f,
+						max = 48f,
+						markers = listOf(UserPreferences.subtitlesTextSize.defaultValue),
 						stepForward = 1f,
 						value = subtitlesTextSize,
 						onValueChange = { subtitlesTextSize = it }
 					)
 
-					Spacer(Modifier.width(8.dp))
+					Spacer(Modifier.width(Tokens.Space.spaceSm))
 
 					Box(
 						modifier = Modifier.sizeIn(minWidth = 32.dp),
@@ -124,6 +128,7 @@ fun SettingsSubtitlesScreen() {
 					Text(name)
 				},
 				interactionSource = interactionSource,
+				modifier = Modifier.focusKey("subtitles_weight")
 			) {
 				RangeControl(
 					modifier = Modifier
@@ -132,6 +137,7 @@ fun SettingsSubtitlesScreen() {
 					interactionSource = interactionSource,
 					min = 100f,
 					max = 900f,
+					markers = listOf(UserPreferences.subtitlesTextWeight.defaultValue.toFloat()),
 					stepForward = 100f,
 					value = subtitlesTextWeight.toFloat(),
 					onValueChange = { subtitlesTextWeight = it.toInt() }
@@ -144,6 +150,7 @@ fun SettingsSubtitlesScreen() {
 				headingContent = { Text(stringResource(R.string.lbl_subtitle_text_color)) },
 				trailingContent = { ColorSwatch(color = Color(subtitlesTextColor.toInt())) },
 				onClick = { router.push(Routes.CUSTOMIZATION_SUBTITLES_TEXT_COLOR) },
+				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_SUBTITLES_TEXT_COLOR)
 			)
 		}
 
@@ -152,6 +159,7 @@ fun SettingsSubtitlesScreen() {
 				headingContent = { Text(stringResource(R.string.lbl_subtitle_background_color)) },
 				trailingContent = { ColorSwatch(color = Color(subtitlesBackgroundColor.toInt())) },
 				onClick = { router.push(Routes.CUSTOMIZATION_SUBTITLES_BACKGROUND_COLOR) },
+				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_SUBTITLES_BACKGROUND_COLOR)
 			)
 		}
 
@@ -160,6 +168,7 @@ fun SettingsSubtitlesScreen() {
 				headingContent = { Text(stringResource(R.string.lbl_subtitle_text_stroke_color)) },
 				trailingContent = { ColorSwatch(color = Color(subtitleTextStrokeColor.toInt())) },
 				onClick = { router.push(Routes.CUSTOMIZATION_SUBTITLES_EDGE_COLOR) },
+				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_SUBTITLES_EDGE_COLOR)
 			)
 		}
 
@@ -169,6 +178,7 @@ fun SettingsSubtitlesScreen() {
 			ListControl(
 				headingContent = { Text(stringResource(R.string.pref_subtitles_position)) },
 				interactionSource = interactionSource,
+				modifier = Modifier.focusKey("subtitles_position")
 			) {
 				Row(
 					verticalAlignment = Alignment.CenterVertically,
@@ -180,12 +190,13 @@ fun SettingsSubtitlesScreen() {
 						interactionSource = interactionSource,
 						min = 0f,
 						max = 0.8f,
+						markers = listOf(UserPreferences.subtitlesOffsetPosition.defaultValue),
 						stepForward = 0.01f,
 						value = subtitlesOffsetPosition,
 						onValueChange = { subtitlesOffsetPosition = it }
 					)
 
-					Spacer(Modifier.width(8.dp))
+					Spacer(Modifier.width(Tokens.Space.spaceSm))
 
 					Box(
 						modifier = Modifier.sizeIn(minWidth = 32.dp),

@@ -1,18 +1,32 @@
 package org.jellyfin.androidtv.ui.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultTransitionSpec
+import androidx.navigationevent.NavigationEvent
+import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
+import org.jellyfin.androidtv.ui.navigation.focus.rememberFocusRestorationNavEntryDecorator
 
 typealias RouteParameters = Map<String, String>
 typealias RouteComposable = @Composable ((context: RouteContext) -> Unit)
 
+@Serializable
 data class RouteContext(
 	val route: String,
 	val parameters: RouteParameters,
@@ -50,6 +64,7 @@ class Router(
 }
 
 val LocalRouter = compositionLocalOf<Router> { error("No router provided") }
+val LocalRouterTransitionScope = compositionLocalOf<SharedTransitionScope> { error("No router transition scope provided") }
 
 @Composable
 fun ProvideRouter(
@@ -58,7 +73,9 @@ fun ProvideRouter(
 	defaultRouteParameters: RouteParameters = emptyMap(),
 	content: @Composable () -> Unit,
 ) {
-	val backStack = remember { mutableStateListOf(RouteContext(defaultRoute, defaultRouteParameters)) }
+	val backStack = rememberSerializable(serializer = SnapshotStateListSerializer(serializer<RouteContext>())) {
+		mutableStateListOf(RouteContext(defaultRoute, defaultRouteParameters))
+	}
 	val router = remember(routes, backStack) {
 		Router(
 			routes = routes,
@@ -75,27 +92,38 @@ fun ProvideRouter(
 @Composable
 fun RouterContent(
 	router: Router = LocalRouter.current,
-	fallbackRoute: String = "/"
+	fallbackRoute: String = "/",
+	transitionSpec: AnimatedContentTransitionScope<Scene<RouteContext>>.() -> ContentTransform = defaultTransitionSpec(),
+	popTransitionSpec: AnimatedContentTransitionScope<Scene<RouteContext>>.() -> ContentTransform = defaultPopTransitionSpec(),
+	predictivePopTransitionSpec: AnimatedContentTransitionScope<Scene<RouteContext>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform = { popTransitionSpec() },
 ) {
-	NavDisplay(
-		backStack = router.backStack,
-		onBack = { router.back() },
-		entryDecorators = listOf(
-			rememberSaveableStateHolderNavEntryDecorator(),
-		),
-		entryProvider = { backStackEntry ->
-			NavEntry(backStackEntry) {
-				val route = backStackEntry.route
-				val composable = router.resolve(route)
-				if (composable == null) {
-					val fallbackComposable = router.resolve(fallbackRoute)
-						?: error("Unknown route $route, fallback $fallbackRoute is invalid")
-					val context = backStackEntry.copy(route = fallbackRoute)
-					fallbackComposable(context)
-				} else {
-					composable(backStackEntry)
+	SharedTransitionLayout {
+		CompositionLocalProvider(LocalRouterTransitionScope provides this@SharedTransitionLayout) {
+			NavDisplay(
+				backStack = router.backStack,
+				onBack = { router.back() },
+				entryDecorators = listOf(
+					rememberSaveableStateHolderNavEntryDecorator(),
+					rememberFocusRestorationNavEntryDecorator(),
+				),
+				transitionSpec = transitionSpec,
+				popTransitionSpec = popTransitionSpec,
+				predictivePopTransitionSpec = predictivePopTransitionSpec,
+				entryProvider = { backStackEntry ->
+					NavEntry(backStackEntry) {
+						val route = backStackEntry.route
+						val composable = router.resolve(route)
+						if (composable == null) {
+							val fallbackComposable = router.resolve(fallbackRoute)
+								?: error("Unknown route $route, fallback $fallbackRoute is invalid")
+							val context = backStackEntry.copy(route = fallbackRoute)
+							fallbackComposable(context)
+						} else {
+							composable(backStackEntry)
+						}
+					}
 				}
-			}
+			)
 		}
-	)
+	}
 }

@@ -21,8 +21,8 @@ import org.jellyfin.androidtv.ui.base.LocalShapes
 import org.jellyfin.androidtv.ui.base.Text
 import org.jellyfin.androidtv.ui.base.list.ListButton
 import org.jellyfin.androidtv.ui.base.list.ListSection
-import org.jellyfin.androidtv.ui.navigation.ActivityDestinations
 import org.jellyfin.androidtv.ui.navigation.LocalRouter
+import org.jellyfin.androidtv.ui.navigation.focus.focusKey
 import org.jellyfin.androidtv.ui.settings.Routes
 import org.jellyfin.androidtv.ui.settings.compat.rememberPreference
 import org.jellyfin.androidtv.ui.settings.composable.SettingsColumn
@@ -60,7 +60,17 @@ fun SettingsPlaybackScreen() {
 							.clip(LocalShapes.current.small)
 					)
 				},
-				onClick = { router.push(Routes.PLAYBACK_PLAYER) }
+				onClick = { router.push(Routes.PLAYBACK_PLAYER) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_PLAYER)
+			)
+		}
+
+		item {
+			ListButton(
+				leadingContent = { Icon(painterResource(R.drawable.ic_photo), contentDescription = null) },
+				headingContent = { Text(stringResource(R.string.photo_player)) },
+				onClick = { router.push(Routes.PLAYBACK_PHOTO_PLAYER) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_PHOTO_PLAYER)
 			)
 		}
 
@@ -68,7 +78,8 @@ fun SettingsPlaybackScreen() {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_next_up), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_playback_next_up)) },
-				onClick = { router.push(Routes.PLAYBACK_NEXT_UP) }
+				onClick = { router.push(Routes.PLAYBACK_NEXT_UP) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_NEXT_UP)
 			)
 		}
 
@@ -78,7 +89,8 @@ fun SettingsPlaybackScreen() {
 				leadingContent = { Icon(painterResource(R.drawable.ic_zzz), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_playback_inactivity_prompt)) },
 				captionContent = { Text(stringResource(stillWatchingBehavior.nameRes)) },
-				onClick = { router.push(Routes.PLAYBACK_INACTIVITY_PROMPT) }
+				onClick = { router.push(Routes.PLAYBACK_INACTIVITY_PROMPT) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_INACTIVITY_PROMPT)
 			)
 		}
 
@@ -86,7 +98,8 @@ fun SettingsPlaybackScreen() {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_trailer), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_playback_prerolls)) },
-				onClick = { router.push(Routes.PLAYBACK_PREROLLS) }
+				onClick = { router.push(Routes.PLAYBACK_PREROLLS) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_PREROLLS)
 			)
 		}
 
@@ -94,7 +107,8 @@ fun SettingsPlaybackScreen() {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_subtitles), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_customization_subtitles)) },
-				onClick = { router.push(Routes.CUSTOMIZATION_SUBTITLES) }
+				onClick = { router.push(Routes.CUSTOMIZATION_SUBTITLES) },
+				modifier = Modifier.focusKey(Routes.CUSTOMIZATION_SUBTITLES)
 			)
 		}
 
@@ -102,7 +116,8 @@ fun SettingsPlaybackScreen() {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_clapperboard), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_playback_media_segments)) },
-				onClick = { router.push(Routes.PLAYBACK_MEDIA_SEGMENTS) }
+				onClick = { router.push(Routes.PLAYBACK_MEDIA_SEGMENTS) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_MEDIA_SEGMENTS)
 			)
 		}
 
@@ -110,7 +125,8 @@ fun SettingsPlaybackScreen() {
 			ListButton(
 				leadingContent = { Icon(painterResource(R.drawable.ic_more), contentDescription = null) },
 				headingContent = { Text(stringResource(R.string.pref_playback_advanced)) },
-				onClick = { context.startActivity(ActivityDestinations.playbackAdvancedPreferences(context)) }
+				onClick = { router.push(Routes.PLAYBACK_ADVANCED) },
+				modifier = Modifier.focusKey(Routes.PLAYBACK_ADVANCED)
 			)
 		}
 	}

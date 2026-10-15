@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import org.jellyfin.androidtv.ui.base.JellyfinTheme
+import org.jellyfin.androidtv.ui.base.interactionTracker
 
 object PopoverDefaults {
 	val Shape: Shape = RoundedCornerShape(4.dp)
@@ -44,7 +45,7 @@ fun Popover(
 ) {
 	val density = LocalDensity.current
 	val popupPositionProvider = remember(alignment, density, offset) {
-		PopoverMenuPositionProvider(
+		PopoverPositionProvider(
 			alignment = alignment,
 			offset = IntOffset(
 				x = with(density) { offset.x.roundToPx() },
@@ -88,6 +89,7 @@ fun Popover(
 					.wrapContentSize()
 					.focusRequester(focusRequester)
 					.focusGroup()
+					.interactionTracker()
 			) {
 				content()
 			}

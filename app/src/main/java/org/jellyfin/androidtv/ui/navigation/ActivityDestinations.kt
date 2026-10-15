@@ -2,34 +2,17 @@ package org.jellyfin.androidtv.ui.navigation
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.bundleOf
 import org.jellyfin.androidtv.ui.playback.ExternalPlayerActivity
-import org.jellyfin.androidtv.ui.preference.PreferencesActivity
-import org.jellyfin.androidtv.ui.preference.dsl.OptionsFragment
-import org.jellyfin.androidtv.ui.preference.screen.PlaybackAdvancedPreferencesScreen
 import org.jellyfin.androidtv.ui.startup.StartupActivity
+import org.jellyfin.androidtv.util.createBundle
 import kotlin.time.Duration
 
 object ActivityDestinations {
-	private inline fun <reified T : OptionsFragment> preferenceIntent(
-		context: Context,
-		vararg screenArguments: Pair<String, Any?>
-	) = Intent(context, PreferencesActivity::class.java).apply {
-		putExtras(
-			bundleOf(
-				PreferencesActivity.EXTRA_SCREEN to T::class.qualifiedName,
-				PreferencesActivity.EXTRA_SCREEN_ARGS to bundleOf(*screenArguments),
-			)
-		)
-	}
-
-	fun playbackAdvancedPreferences(context: Context) = preferenceIntent<PlaybackAdvancedPreferencesScreen>(context)
-
 	fun externalPlayer(context: Context, position: Duration = Duration.ZERO) = Intent(context, ExternalPlayerActivity::class.java).apply {
 		putExtras(
-			bundleOf(
-				ExternalPlayerActivity.EXTRA_POSITION to position.inWholeMilliseconds
-			)
+			createBundle {
+				putLong(ExternalPlayerActivity.EXTRA_POSITION, position.inWholeMilliseconds)
+			}
 		)
 	}
 
