@@ -199,6 +199,7 @@ fun ItemRowAdapter.retrieveLatestMedia(api: ApiClient, query: GetLatestMediaRequ
 						isStaticHeight,
 						BaseRowItemSelectAction.ShowDetails,
 						preferParentThumb,
+						showParentTitle = true,
 					)
 				}
 			)
@@ -262,11 +263,10 @@ fun ItemRowAdapter.retrieveUserViews(api: ApiClient, userViewsRepository: UserVi
 
 			val filteredItems = response.items
 				.filter { userViewsRepository.isSupported(it.collectionType) }
-				.map { it.copy(displayPreferencesId = it.id.toString()) }
 
 			setItems(
 				items = filteredItems,
-				transform = { item, _ -> BaseItemDtoBaseRowItem(item) }
+				transform = { item, _ -> BaseItemDtoBaseRowItem(item, staticHeight = true) }
 			)
 
 			if (filteredItems.isEmpty()) removeRow()

@@ -66,37 +66,33 @@ object TelemetryService {
 				if (url.isNullOrBlank()) throw ReportSenderException("No telemetry crash report URL available.")
 				if (token.isNullOrBlank()) throw ReportSenderException("No telemetry crash report token available.")
 
-				// Create connection
-				val connection = URL(url).openConnection() as HttpURLConnection
-				try {
-					// Add authorization
-					val clientName = buildString {
-						append("Phim Ne Android TV")
-						if (BuildConfig.DEBUG) append(" (debug)")
-					}
-					val authorization = AuthorizationHeaderBuilder.buildHeader(
-						clientName = clientName,
-						clientVersion = BuildConfig.VERSION_NAME,
-						deviceId = "",
-						deviceName = "",
-						accessToken = token,
-					)
-					connection.setRequestProperty("Authorization", authorization)
-					// Write POST body
-					connection.requestMethod = "POST"
-					connection.doOutput = true
-					connection.outputStream.use { outputStream ->
-						outputStream.write(errorContent.toReport().toByteArray())
-						outputStream.flush()
-					}
-					// Read response to complete the request
-					connection.inputStream.use { it.readBytes() }
-				} finally {
-					connection.disconnect()
-				}
-			} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-				throw ReportSenderException("Unable to send crash report to server", e)
+			// Create connection
+			val connection = URL(url).openConnection() as HttpURLConnection
+			// Add authorization
+			val clientName = buildString {
+				append("Phim Ne for Android TV")
+				if (BuildConfig.DEBUG) append(" (debug)")
 			}
+			val authorization = AuthorizationHeaderBuilder.buildHeader(
+				clientName = clientName,
+				clientVersion = BuildConfig.VERSION_NAME,
+				deviceId = "",
+				deviceName = "",
+				accessToken = token,
+			)
+			connection.setRequestProperty("Authorization", authorization)
+			// Write POST body
+			connection.requestMethod = "POST"
+			connection.doOutput = true
+			connection.outputStream.apply {
+				write(errorContent.toReport().toByteArray())
+				flush()
+				close()
+			}
+			// Close
+			connection.inputStream.close()
+		} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+			throw ReportSenderException("Unable to send crash report to server", e)
 		}
 
 		private fun CrashReportData.toReport(): String = buildMarkdown {
@@ -104,7 +100,7 @@ object TelemetryService {
 			appendLine("---")
 			appendLine("client: Phim Nè for Android TV")
 			appendLine("client_version: ${BuildConfig.VERSION_NAME}")
-			appendLine("client_repository: https://github.com/jellyfin/jellyfin-androidtv")
+			appendLine("client_repository: https://github.com/minhtran162/phimne-android-tv")
 			appendLine("type: crash_report")
 			appendLine("format: markdown")
 			appendLine("---")
