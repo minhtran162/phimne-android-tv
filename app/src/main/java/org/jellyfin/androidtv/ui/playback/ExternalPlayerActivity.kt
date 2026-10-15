@@ -76,10 +76,7 @@ class ExternalPlayerActivity : FragmentActivity() {
 		resultJob?.invokeOnCompletion { resultJob = null }
 	}
 
-	private val ActivityResult.isError get() = when (data?.action) {
-		API_VIMU_RESULT_ID -> resultCode == API_VIMU_RESULT_ERROR
-		else -> resultCode != RESULT_OK
-	}
+	private val ActivityResult.isError get() = resultCode != RESULT_OK
 
 	private var currentItem: Pair<BaseItemDto, MediaSourceInfo>? = null
 

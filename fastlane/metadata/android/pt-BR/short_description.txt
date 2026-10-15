@@ -1,1 +1,1 @@
-Cliente de TV para o Jellyfin, o sistema de mídia de software livre
+Cliente de TV para o Phim Nè, o sistema de mídia de software livre

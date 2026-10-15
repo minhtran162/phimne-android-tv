@@ -1,14 +1,14 @@
 Sənin median, sənin qaydalarınla.
 
-Jellyfin layihəsi açıq mənbəli, azad proqram təminatı olan media serveridir. Heç bir ödəniş, izləmə və gizli məqsəd yoxdur. Bütün audio, video, foto və digər fayllarını bir yerdə toplamaq üçün bizim pulsuz serverimizi istifadə et.
+Phim Nè layihəsi açıq mənbəli, azad proqram təminatı olan media serveridir. Heç bir ödəniş, izləmə və gizli məqsəd yoxdur. Bütün audio, video, foto və digər fayllarını bir yerdə toplamaq üçün bizim pulsuz serverimizi istifadə et.
 
-Tətbiqdən istifadə etmək üçün Jellyfin serverinin qurulmuş və işlək olması lazımdır. Daha çox məlumat üçün <a href="https://jellyfin.org/" target="_blank">jellyfin.org</a> saytına baxın.
+Tətbiqdən istifadə etmək üçün Phim Nè serverinin qurulmuş və işlək olması lazımdır. Daha çox məlumat üçün <a href="https://jellyfin.org/" target="_blank">jellyfin.org</a> saytına baxın.
 
-Jellyfin serveri ilə siz:
+Phim Nè serveri ilə siz:
 
-Jellyfin serverinizdən canlı TV və yazılmış verilişləri izləyə bilərsiniz (əlavə avadanlıq/xidmətlər tələb oluna bilər)
+Phim Nè serverinizdən canlı TV və yazılmış verilişləri izləyə bilərsiniz (əlavə avadanlıq/xidmətlər tələb oluna bilər)
 Şəbəkənizdə Chromecast cihazına yayımlaya bilərsiniz
 Medianızı Android TV cihazınıza axınla ötürə bilərsiniz
 Kolleksiyanızı sadə və istifadəsi rahat interfeysdə görə bilərsiniz
 
-Bu, Android TV üçün rəsmi Jellyfin müşayiətçi tətbiqidir. Jellyfin istifadə etdiyiniz üçün təşəkkür edirik!
+Bu, Android TV üçün rəsmi Phim Nè müşayiətçi tətbiqidir. Phim Nè istifadə etdiyiniz üçün təşəkkür edirik!

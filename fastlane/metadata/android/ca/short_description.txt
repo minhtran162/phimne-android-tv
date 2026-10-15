@@ -1,1 +1,1 @@
-Client de TV per a Jellyfin, el sistema multimèdia de programari lliure
+Client de TV per a Phim Nè, el sistema multimèdia de programari lliure

@@ -1,1 +1,1 @@
-TV-Client für Jellyfin, das freie Mediensystem
+TV-Client für Phim Nè, das freie Mediensystem

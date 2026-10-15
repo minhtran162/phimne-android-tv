@@ -66,33 +66,34 @@ object TelemetryService {
 				if (url.isNullOrBlank()) throw ReportSenderException("No telemetry crash report URL available.")
 				if (token.isNullOrBlank()) throw ReportSenderException("No telemetry crash report token available.")
 
-			// Create connection
-			val connection = URL(url).openConnection() as HttpURLConnection
-			// Add authorization
-			val clientName = buildString {
-				append("Phim Ne for Android TV")
-				if (BuildConfig.DEBUG) append(" (debug)")
+				// Create connection
+				val connection = URL(url).openConnection() as HttpURLConnection
+				// Add authorization
+				val clientName = buildString {
+					append("Phim Ne for Android TV")
+					if (BuildConfig.DEBUG) append(" (debug)")
+				}
+				val authorization = AuthorizationHeaderBuilder.buildHeader(
+					clientName = clientName,
+					clientVersion = BuildConfig.VERSION_NAME,
+					deviceId = "",
+					deviceName = "",
+					accessToken = token,
+				)
+				connection.setRequestProperty("Authorization", authorization)
+				// Write POST body
+				connection.requestMethod = "POST"
+				connection.doOutput = true
+				connection.outputStream.apply {
+					write(errorContent.toReport().toByteArray())
+					flush()
+					close()
+				}
+				// Close
+				connection.inputStream.close()
+			} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+				throw ReportSenderException("Unable to send crash report to server", e)
 			}
-			val authorization = AuthorizationHeaderBuilder.buildHeader(
-				clientName = clientName,
-				clientVersion = BuildConfig.VERSION_NAME,
-				deviceId = "",
-				deviceName = "",
-				accessToken = token,
-			)
-			connection.setRequestProperty("Authorization", authorization)
-			// Write POST body
-			connection.requestMethod = "POST"
-			connection.doOutput = true
-			connection.outputStream.apply {
-				write(errorContent.toReport().toByteArray())
-				flush()
-				close()
-			}
-			// Close
-			connection.inputStream.close()
-		} catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-			throw ReportSenderException("Unable to send crash report to server", e)
 		}
 
 		private fun CrashReportData.toReport(): String = buildMarkdown {

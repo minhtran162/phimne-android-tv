@@ -604,7 +604,7 @@
     <string name="playback_video_player">Trình phát video</string>
     <string name="video_player_internal">Trình phát video tích hợp</string>
     <string name="video_player_external">Ứng dụng bên ngoài</string>
-    <string name="playback_video_player_external_empty">Bạn chưa cài đặt bất kỳ ứng dụng trình phát video nào trên thiết bị của mình có thể mở video Jellyfin.</string>
+    <string name="playback_video_player_external_empty">Bạn chưa cài đặt bất kỳ ứng dụng trình phát video nào trên thiết bị của mình có thể mở video Phim Nè.</string>
     <string name="filters">Bộ lọc</string>
     <string name="playback_info">Thông tin phát lại</string>
     <string name="playback_info_play_method">Phương thức phát: %1$s</string>
